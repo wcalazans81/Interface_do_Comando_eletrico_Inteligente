@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Destinatários - Sistema de Bombas</title>
+    <link rel="stylesheet" href="/style.css">
+        <style>
+        .emails-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .add-form {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .add-form h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* ⚠️ Permite quebra em telas pequenas */
+        }
+        
+        .form-row input {
+            flex: 2;
+            min-width: 200px; /* ⚠️ Largura mínima */
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .form-row select {
+            flex: 1;
+            min-width: 150px; /* ⚠️ Largura mínima */
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            box-sizing: border-box;
+        }
+        
+        .btn-add {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+        
+        .recipients-list {
+            margin-top: 20px;
+        }
+        
+        .recipient-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            flex-wrap: wrap; /* ⚠️ Permite quebra */
+            gap: 10px;
+        }
+        
+        .recipient-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .recipient-info {
+            flex: 1;
+            min-width: 200px; /* ⚠️ Largura mínima */
+        }
+        
+        .recipient-email {
+            font-weight: 600;
+            color: #333;
+            word-break: break-word; /* ⚠️ Quebra emails longos */
+        }
+        
+        .recipient-level {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .level-1 {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .level-2 {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .level-3 {
+            background: #f44336;
+            color: white;
+        }
+        
+        .recipient-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .status-ativo {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status-inativo {
+            background: #999;
+            color: white;
+        }
+        
+        .recipient-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap; /* ⚠️ Permite quebra */
+            justify-content: flex-end;
+        }
+        
+        .btn-toggle {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .btn-ativo {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-inativo {
+            background: #999;
+            color: white;
+        }
+        
+        .btn-remove {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .btn-remove:hover {
+            opacity: 0.9;
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #4CAF50;
+            color: white;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f44336;
+            color: white;
+            display: block;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            color: #555;
+            word-break: break-word;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #f5f5f5;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* ✅ MEDIA QUERIES PARA RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .emails-container {
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-row input,
+            .form-row select {
+                width: 100%;
+                min-width: 100%;
+            }
+            
+            .recipient-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .recipient-info {
+                width: 100%;
+            }
+            
+            .recipient-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+            
+            .btn-toggle,
+            .btn-remove {
+                flex: 1;
+                text-align: center;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-link {
+                text-align: center;
+                margin: 5px 0;
+            }
+            
+            .recipient-level {
+                margin-left: 0;
+                margin-top: 5px;
+                display: block;
+                width: fit-content;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .emails-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .add-form {
+                padding: 15px;
+            }
+            
+            .add-form h3 {
+                font-size: 1.1rem;
+            }
+            
+            .recipient-email {
+                font-size: 0.9rem;
+            }
+            
+            .btn-toggle,
+            .btn-remove {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .recipient-level {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+    <script src="/auth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Gerenciar Destinatários</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="emails-container">
+            <div class="info-box">
+                <h4>📋 Níveis de Alerta</h4>
+                <p><span class="level-1" style="padding:4px 8px;">Nível 1</span> - Informações (só notificações leves)</p></br>
+                <p><span class="level-2" style="padding:4px 8px;">Nível 2</span> - Alertas (problemas que exigem atenção)</p></br>
+                <p><span class="level-3" style="padding:4px 8px;">Nível 3</span> - Falhas (problemas críticos)</p>
+            </div>
+
+            <div class="add-form">
+                <h3>➕ Adicionar Novo Destinatário</h3>
+                <div class="form-row">
+                    <input type="email" id="novoEmail" placeholder="email@exemplo.com">
+                    <select id="nivelMinimo">
+                        <option value="1">Nível 1 - Informação</option>
+                        <option value="2" selected>Nível 2 - Alerta</option>
+                        <option value="3">Nível 3 - Falha</option>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="adicionarEmail()">Adicionar</button>
+            </div>
+
+            <div class="recipients-list" id="recipientsList">
+                <div class="empty-message">Carregando lista de destinatários...</div>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <div class="nav-links">
+                <!--<a href="/" class="nav-link">🏠 Dashboard</a>-->
+                <a href="/email.html" class="nav-link">⚙️ Config SMTP</a>
+                <a href="/config.html" class="nav-link">⚙️ Config</a>
+                <button onclick="sair()" style="background:#f44336; color:white; border:none; padding:8px 16px; border-radius:20px; margin-left:15px; cursor:pointer;">🏠 Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarStatus(msg, tipo) {
+            const el = document.getElementById('statusMessage');
+            el.className = 'status-message ' + tipo;
+            el.innerHTML = msg;
+            setTimeout(() => {
+                el.style.display = 'none';
+                setTimeout(() => {
+                    el.style.display = 'block';
+                }, 10);
+            }, 3000);
+        }
+
+        function carregarDestinatarios() {
+            fetch('/api/email/recipients')
+                .then(response => response.json())
+                .then(data => {
+                    const lista = document.getElementById('recipientsList');
+                    
+                    if (!data.recipients || data.recipients.length === 0) {
+                        lista.innerHTML = '<div class="empty-message">📭 Nenhum destinatário cadastrado</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.recipients.forEach(recip => {
+                        let levelClass = 'level-' + recip.nivelMinimo;
+                        let levelText = 'Nível ' + recip.nivelMinimo;
+                        let statusClass = recip.ativo ? 'status-ativo' : 'status-inativo';
+                        let statusText = recip.ativo ? 'Ativo' : 'Inativo';
+                        let btnStatusClass = recip.ativo ? 'btn-inativo' : 'btn-ativo';
+                        let btnStatusText = recip.ativo ? 'Desativar' : 'Ativar';
+                        
+                        html += `
+                            <div class="recipient-card" data-email="${recip.email}">
+                                <div class="recipient-info">
+                                    <span class="recipient-email">${recip.email}</span>
+                                    <span class="recipient-level ${levelClass}">${levelText}</span>
+                                    <span class="recipient-status ${statusClass}">${statusText}</span>
+                                </div>
+                                <div class="recipient-actions">
+                                    <button class="btn-toggle ${btnStatusClass}" onclick="toggleStatus('${recip.email}', ${recip.ativo})">${btnStatusText}</button>
+                                    <button class="btn-remove" onclick="removerEmail('${recip.email}')">🗑️ Remover</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    lista.innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('recipientsList').innerHTML = 
+                        '<div class="empty-message" style="color:red;">❌ Erro ao carregar lista</div>';
+                });
+        }
+
+        function adicionarEmail() {
+            const email = document.getElementById('novoEmail').value.trim();
+            const nivel = document.getElementById('nivelMinimo').value;
+            
+            if (!email) {
+                mostrarStatus('❌ Digite um email', 'error');
+                return;
+            }
+            
+            if (!email.includes('@') || !email.includes('.')) {
+                mostrarStatus('❌ Email inválido', 'error');
+                return;
+            }
+            
+            fetch('/api/email/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    nivelMinimo: parseInt(nivel)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarStatus('✅ Destinatário adicionado com sucesso!', 'success');
+                    document.getElementById('novoEmail').value = '';
+                    carregarDestinatarios();
+                } else {
+                    mostrarStatus('❌ ' + (data.error || 'Erro ao adicionar'), 'error');
+                }
+            })
+            .catch(error => {
+                mostrarStatus('❌ Erro ao conectar com servidor', 'error');
+            });
+        }
+
+        function removerEmail(email) {
+            if (!confirm(`Tem certeza que deseja remover ${email}?`)) {
+                return;
+            }
+            
+            fetch('/api/email/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarStatus('✅ Destinatário removido!', 'success');
+                    carregarDestinatarios();
+                } else {
+                    mostrarStatus('❌ ' + (data.error || 'Erro ao remover'), 'error');
+                }
+            })
+            .catch(error => {
+                mostrarStatus('❌ Erro ao conectar com servidor', 'error');
+            });
+        }
+
+        function toggleStatus(email, ativoAtual) {
+            // Por enquanto, apenas remove/adiciona (simplificado)
+            // Idealmente teria um endpoint específico para toggle
+            if (ativoAtual) {
+                removerEmail(email);
+            } else {
+                // Reativar é mais complexo - por simplicidade, vamos recadastrar
+                fetch('/api/email/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        nivelMinimo: 2,
+                        ativo: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        mostrarStatus('✅ Destinatário ativado!', 'success');
+                        carregarDestinatarios();
+                    }
+                });
+            }
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wifi-status').className = data.wifiConnected ? 'status online' : 'status offline';
+                    document.getElementById('wifi-status').innerHTML = data.wifiConnected ? '📶 WiFi' : '📶 Desconectado';
+                    document.getElementById('alerta-status').className = data.alertaAtivo ? 'status alerta' : 'status ok';
+                    document.getElementById('alerta-status').innerHTML = data.alertaAtivo ? '⚠️ Alerta' : '✅ Normal';
+                });
+        }
+
+        // Carrega lista ao iniciar
+        carregarDestinatarios();
+        setInterval(updateStatus, 2000);
+        setInterval(carregarDestinatarios, 10000);
+    </script>
+</body>
+</html>

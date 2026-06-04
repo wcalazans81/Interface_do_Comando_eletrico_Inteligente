@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Bombas</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h2 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .btn-login:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            background: #f44336;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .links {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+        
+        .separator {
+            color: #ddd;
+            font-weight: bold;
+        }
+        
+        .cadastrar-link {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            padding: 6px 15px;
+            border-radius: 25px;
+            border: 1px solid #667eea30;
+        }
+        
+        .cadastrar-link:hover {
+            background: linear-gradient(135deg, #667eea25, #764ba225);
+            border-color: #667eea60;
+        }
+        
+        .nav-back {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .nav-back a {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .nav-back a:hover {
+            color: #667eea;
+        }
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container input {
+            width: 100%;
+            padding-right: 45px; /* Espaço para o ícone */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #666;
+            transition: all 0.3s ease;
+            user-select: none;
+            z-index: 10;
+            background: transparent;
+            border: none;
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: #667eea;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .toggle-password:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 Área do Síndico</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="login-container">
+            <div class="login-header">
+                <h2>Acesso Restrito</h2>
+                <p>Proteção das configurações do sistema</p>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <form id="loginForm" onsubmit="fazerLogin(event)">
+                <div class="form-group">
+                    <label>Usuário:</label>
+                    <input type="text" id="username" placeholder="sindico" value="sindico" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="••••••••" required>
+                        <span class="toggle-password" onclick="toggleSenha('password', this)">👁️</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login" id="btnLogin">🔓 Entrar</button>
+            </form>
+            
+            <div class="links">
+                <a href="/recuperar.html" title="Recuperar senha">🔑 Esqueci minha senha</a>
+                <span class="separator">|</span>
+                <a href="/admin_email.html" class="cadastrar-link" title="Cadastrar email para recuperação">📧 Cadastrar email</a>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>📌 Primeiro acesso:</strong></p>
+                <p>Usuário: <strong>sindico</strong></p>
+                <p>Senha: <strong>admin123</strong></p>
+                <p style="margin-top:10px;"><small>⚠️ Cadastre seu email para poder recuperar a senha!</small></p>
+            </div>
+            
+            <div class="nav-back">
+                <a href="/">← Voltar ao Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/auth.js"></script>
+    <script>
+        let tentativas = 3;
+        let bloqueado = false;
+        
+        function fazerLogin(event) {
+            event.preventDefault();
+            
+            if (bloqueado) {
+                alert('Aguardando tempo de bloqueio...');
+                return;
+            }
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btnLogin');
+            
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Entrando...';
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    // Login bem sucedido
+                    sessionStorage.setItem('auth_logado', 'true');
+                    sessionStorage.setItem('auth_user', username);
+                    
+                    // Verifica se é primeiro acesso
+                    if (data.primeiroAcesso) {
+                        // Redireciona para cadastrar admin
+                        window.location.href = '/admin_email.html';
+                    } else {
+                        // Redireciona para config
+                        window.location.href = '/config.html';
+                    }
+                } else {
+                    tentativas--;
+                    
+                    if (tentativas <= 0) {
+                        bloqueado = true;
+                        document.getElementById('errorMessage').innerHTML = '❌ Muitas tentativas! Aguarde 5 minutos.';
+                        document.getElementById('errorMessage').style.display = 'block';
+                        btn.disabled = true;
+                        btn.innerHTML = '🔒 Bloqueado';
+                        
+                        setTimeout(() => {
+                            tentativas = 3;
+                            bloqueado = false;
+                            btn.disabled = false;
+                            btn.innerHTML = '🔓 Entrar';
+                            document.getElementById('errorMessage').style.display = 'none';
+                        }, 5 * 60 * 1000);
+                    } else {
+                        document.getElementById('errorMessage').innerHTML = `❌ Usuário ou senha incorretos! Tentativas restantes: ${tentativas}`;
+                        document.getElementById('errorMessage').style.display = 'block';
+                        btn.disabled = false;
+                        btn.innerHTML = '🔓 Entrar';
+                    }
+                }
+            })
+            .catch(() => {
+                alert('Erro ao conectar com o servidor');
+                btn.disabled = false;
+                btn.innerHTML = '🔓 Entrar';
+            });
+        }
+        
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wifi-status').className = data.wifiConnected ? 'status online' : 'status offline';
+                    document.getElementById('wifi-status').innerHTML = data.wifiConnected ? '📶 WiFi' : '📶 Desconectado';
+                    document.getElementById('alerta-status').className = data.alertaAtivo ? 'status alerta' : 'status ok';
+                    document.getElementById('alerta-status').innerHTML = data.alertaAtivo ? '⚠️ Alerta' : '✅ Normal';
+                });
+        }
+        // Função para mostrar/esconder senha
+        function toggleSenha(inputId, elemento) {
+            const senhaInput = document.getElementById(inputId);
+            
+            if (senhaInput.type === 'password') {
+                senhaInput.type = 'text';
+                elemento.textContent = '👁️‍🗨️'; // Olho aberto
+            } else {
+                senhaInput.type = 'password';
+                elemento.textContent = '👁️'; // Olho fechado
+            }
+        }
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>

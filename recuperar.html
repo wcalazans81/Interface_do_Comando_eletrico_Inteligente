@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .recover-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .recover-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .recover-header h2 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: #4CAF50;
+        }
+        
+        .message {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #4CAF50;
+            color: white;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f44336;
+            color: white;
+            display: block;
+        }
+        
+        .message.info {
+            background: #2196F3;
+            color: white;
+            display: block;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .step {
+            display: block;
+        }
+        
+        .step.hidden {
+            display: none;
+        }
+        
+        .nav-back {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .nav-back a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .timer {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container input {
+            width: 100%;
+            padding-right: 45px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #666;
+            transition: all 0.3s ease;
+            user-select: none;
+            background: transparent;
+            border: none;
+            padding: 5px;
+            z-index: 10;
+        }
+
+        .toggle-password:hover {
+            color: #667eea;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .toggle-password:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔑 Recuperar Senha</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="recover-container">
+            <div class="recover-header">
+                <h2>Esqueceu sua senha?</h2>
+                <p>Digite seu email para receber um código</p>
+            </div>
+
+            <!-- STEP 1: SOLICITAR CÓDIGO -->
+            <div id="step1" class="step">
+                <div id="message1" class="message"></div>
+                
+                <form id="recoverForm" onsubmit="enviarCodigo(event)">
+                    <div class="form-group">
+                        <label>Email do Administrador:</label>
+                        <input type="email" id="email" placeholder="sindico@condominio.com" required>
+                    </div>
+                    <button type="submit" class="btn">📧 Enviar código</button>
+                </form>
+            </div>
+
+            <!-- STEP 2: REDEFINIR SENHA -->
+            <div id="step2" class="step hidden">
+                <div id="message2" class="message"></div>
+                
+                <form id="resetForm" onsubmit="redefinirSenha(event)">
+                    <div class="form-group">
+                        <label>Código recebido:</label>
+                        <input type="text" id="codigo" placeholder="000000" maxlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nova senha:</label>
+                        <div class="password-container">
+                            <input type="password" id="novaSenha" placeholder="mínimo 6 caracteres" required>
+                            <span class="toggle-password" onclick="toggleSenha('novaSenha', this)">👁️</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar nova senha:</label>
+                        <div class="password-container">
+                            <input type="password" id="confirmar" placeholder="digite novamente" required>
+                            <span class="toggle-password" onclick="toggleSenha('confirmar', this)">👁️</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">✅ Redefinir senha</button>
+                </form>
+                
+                <div class="timer" id="timer"></div>
+                <button class="btn" style="background: #666;" onclick="voltarStep1()">← Voltar</button>
+            </div>
+
+            <div class="info-box">
+                <p>📧 O código será enviado para o email cadastrado do administrador.</p>
+                <p>⏱️ O código é válido por 15 minutos.</p>
+            </div>
+
+            <div class="nav-back">
+                <a href="/login.html">← Voltar ao login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let emailRecuperacao = '';
+        let tempoRestante = 900; // 15 minutos em segundos
+        let timerInterval;
+
+        function mostrarMsg(elId, msg, tipo) {
+            const el = document.getElementById(elId);
+            el.className = 'message ' + tipo;
+            el.innerHTML = msg;
+        }
+
+        function iniciarTimer() {
+            tempoRestante = 900;
+            const timerEl = document.getElementById('timer');
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                if (tempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.innerHTML = '⏱️ Código expirado! Solicite novamente.';
+                    return;
+                }
+                
+                const minutos = Math.floor(tempoRestante / 60);
+                const segundos = tempoRestante % 60;
+                timerEl.innerHTML = `⏱️ Código válido por: ${minutos}:${segundos.toString().padStart(2, '0')}`;
+                tempoRestante--;
+            }, 1000);
+        }
+
+        function voltarStep1() {
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function enviarCodigo(event) {
+            event.preventDefault();
+            
+            emailRecuperacao = document.getElementById('email').value;
+            
+            mostrarMsg('message1', '📧 Enviando código...', 'info');
+            
+            fetch('/api/auth/recover', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailRecuperacao })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarMsg('message1', '✅ Código enviado para seu email!', 'success');
+                    document.getElementById('step1').classList.add('hidden');
+                    document.getElementById('step2').classList.remove('hidden');
+                    iniciarTimer();
+                } else {
+                    mostrarMsg('message1', '❌ Email não cadastrado como administrador!', 'error');
+                }
+            })
+            .catch(error => {
+                mostrarMsg('message1', '❌ Erro de conexão', 'error');
+            });
+        }
+
+        function redefinirSenha(event) {
+            event.preventDefault();
+            
+            const codigo = document.getElementById('codigo').value;
+            const novaSenha = document.getElementById('novaSenha').value;
+            const confirmar = document.getElementById('confirmar').value;
+            
+            if (novaSenha !== confirmar) {
+                mostrarMsg('message2', '❌ As senhas não conferem!', 'error');
+                return;
+            }
+            
+            if (novaSenha.length < 6) {
+                mostrarMsg('message2', '❌ A senha deve ter no mínimo 6 caracteres!', 'error');
+                return;
+            }
+            
+            mostrarMsg('message2', '⏳ Redefinindo senha...', 'info');
+            
+            fetch('/api/auth/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: emailRecuperacao,
+                    codigo: codigo,
+                    novaSenha: novaSenha
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarMsg('message2', '✅ Senha alterada com sucesso! Redirecionando...', 'success');
+                    if (timerInterval) clearInterval(timerInterval);
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                } else {
+                    mostrarMsg('message2', '❌ Código inválido ou expirado!', 'error');
+                }
+            })
+            .catch(error => {
+                mostrarMsg('message2', '❌ Erro de conexão', 'error');
+            });
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wifi-status').className = data.wifiConnected ? 'status online' : 'status offline';
+                    document.getElementById('wifi-status').innerHTML = data.wifiConnected ? '📶 WiFi' : '📶 Desconectado';
+                    document.getElementById('alerta-status').className = data.alertaAtivo ? 'status alerta' : 'status ok';
+                    document.getElementById('alerta-status').innerHTML = data.alertaAtivo ? '⚠️ Alerta' : '✅ Normal';
+                });
+        }
+        // Função para mostrar/esconder senha
+        function toggleSenha(inputId, elemento) {
+            const senhaInput = document.getElementById(inputId);
+            
+            if (senhaInput.type === 'password') {
+                senhaInput.type = 'text';
+                elemento.textContent = '👁️‍🗨️'; // Olho aberto
+            } else {
+                senhaInput.type = 'password';
+                elemento.textContent = '👁️'; // Olho fechado
+            }
+        }
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>

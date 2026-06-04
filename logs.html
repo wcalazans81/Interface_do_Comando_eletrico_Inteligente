@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs - Sistema de Bombas</title>
+    <link rel="stylesheet" href="/style.css">
+        <style>
+        .logs-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* ⚠️ Permite quebra */
+            gap: 15px;
+        }
+        
+        .logs-title {
+            color: #555;
+            font-size: 1.5rem;
+        }
+        
+        .btn-refresh {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-refresh:hover {
+            opacity: 0.9;
+        }
+        
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .logs-table th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .logs-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .logs-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge.resolvido {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .badge.pendente {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .badge.critico {
+            background: #f44336;
+            color: white;
+        }
+        
+        .log-tipo {
+            font-weight: 600;
+        }
+        
+        .log-tipo.falha { color: #f44336; }
+        .log-tipo.alerta { color: #ff9800; }
+        .log-tipo.info { color: #2196F3; }
+        
+        .empty-logs {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* ⚠️ Permite quebra */
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #f5f5f5;
+        }
+        
+        .timestamp {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        /* ✅ MEDIA QUERIES PARA RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .logs-container {
+                padding: 20px;
+            }
+            
+            .logs-table {
+                display: block;
+                overflow-x: auto; /* ⚠️ Permite rolagem horizontal só na tabela */
+                white-space: nowrap;
+            }
+            
+            .logs-table th, .logs-table td {
+                padding: 8px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-link {
+                text-align: center;
+                margin: 5px 0;
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logs-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logs-title {
+                font-size: 1.2rem;
+            }
+            
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .logs-table {
+                font-size: 0.85rem;
+            }
+            
+            .badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Histórico de Falhas</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="logs-container">
+            <div class="logs-header">
+                <h2 class="logs-title">Registros do Sistema</h2>
+                <button class="btn-refresh" onclick="carregarLogs()">🔄 Atualizar</button>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" onclick="filtrarLogs('todos')">Todos</button>
+                <button class="filter-btn" onclick="filtrarLogs('falhas')">Falhas</button>
+                <button class="filter-btn" onclick="filtrarLogs('alertas')">Alertas</button>
+                <button class="filter-btn" onclick="filtrarLogs('info')">Informações</button>
+            </div>
+            
+            <div id="logs-content">
+                <div class="empty-logs">Carregando logs...</div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Dashboard</a>
+                <a href="/config.html" class="nav-link">⚙️ Configuração</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logsData = [];
+        let filtroAtual = 'todos';
+
+        function carregarLogs() {
+
+            fetch('/api/logs')
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    logsData = data.logs || [];
+
+                    aplicarFiltro();
+                })
+
+                .catch(error => {
+
+                    console.error('Erro ao carregar logs:', error);
+
+                    document.getElementById('logs-content').innerHTML =
+                        '<div class="empty-logs">❌ Erro ao carregar logs</div>';
+                });
+        }
+
+        function aplicarFiltro() {
+
+            let logsFiltrados = logsData;
+
+            if (filtroAtual === 'falhas') {
+
+                logsFiltrados =
+                    logsData.filter(log =>
+                        log.tipo === 'CRITICO'
+                    );
+
+            } else if (filtroAtual === 'alertas') {
+
+                logsFiltrados =
+                    logsData.filter(log =>
+                        log.tipo === 'ALERTA'
+                    );
+
+            } else if (filtroAtual === 'info') {
+
+                logsFiltrados =
+                    logsData.filter(log =>
+                        log.tipo === 'INFO'
+                    );
+            }
+
+            renderizarLogs(logsFiltrados);
+        }
+
+        function filtrarLogs(filtro) {
+
+            filtroAtual = filtro;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+
+                btn.classList.remove('active');
+            });
+
+            event.target.classList.add('active');
+
+            aplicarFiltro();
+        }
+
+        function renderizarLogs(logs) {
+
+            const container =
+                document.getElementById('logs-content');
+
+            if (!logs || logs.length === 0) {
+
+                container.innerHTML =
+                    '<div class="empty-logs">📭 Nenhum registro encontrado</div>';
+
+                return;
+            }
+
+            let html =
+                '<table class="logs-table">';
+
+            html += `
+                <tr>
+                    <th>Horário</th>
+                    <th>Tipo</th>
+                    <th>Evento</th>
+                    <th>Origem</th>
+                    <th>Status</th>
+                </tr>
+            `;
+
+            logs.forEach(log => {
+
+                let tipoClass = 'log-tipo';
+
+                if (log.tipo === 'CRITICO') {
+
+                    tipoClass += ' falha';
+
+                } else if (log.tipo === 'ALERTA') {
+
+                    tipoClass += ' alerta';
+
+                } else {
+
+                    tipoClass += ' info';
+                }
+
+                let statusClass = 'badge';
+
+                if (log.status === 'Resolvido') {
+
+                    statusClass += ' resolvido';
+
+                } else {
+
+                    statusClass += ' ativo';
+                }
+
+                html += '<tr>';
+
+                html += `
+                    <td class="timestamp">
+                        ${log.timestamp}
+                    </td>
+                `;
+
+                html += `
+                    <td class="${tipoClass}">
+                        ${log.tipo}
+                    </td>
+                `;
+
+                html += `
+                    <td>
+                        ${log.evento || '-'}
+                    </td>
+                `;
+
+                html += `
+                    <td>
+                        ${log.origem || 'Sistema'}
+                    </td>
+                `;
+
+                html += `
+                    <td>
+                        <span class="${statusClass}">
+                            ${log.status}
+                        </span>
+                    </td>
+                `;
+
+                html += '</tr>';
+            });
+
+            html += '</table>';
+
+            container.innerHTML = html;
+        }
+
+        // =========================
+        // STATUS TOPO
+        // =========================
+
+        function updateStatus() {
+
+            fetch('/api/status')
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    // =========================
+                    // WIFI
+                    // =========================
+
+                    document.getElementById('wifi-status').className =
+                        data.wifiConnected
+                            ? 'status online'
+                            : 'status offline';
+
+                    document.getElementById('wifi-status').innerHTML =
+                        data.wifiConnected
+                            ? '📶 WiFi'
+                            : '📶 Desconectado';
+
+                    // =========================
+                    // STATUS DO SISTEMA
+                    // =========================
+
+                    if (data.sistemaBloqueado) {
+
+                        document.getElementById('alerta-status').className =
+                            'status falha';
+
+                        document.getElementById('alerta-status').innerHTML =
+                            '🚨 Falha Crítica';
+                    }
+
+                    else if (data.alertaAtivo) {
+
+                        document.getElementById('alerta-status').className =
+                            'status alerta';
+
+                        document.getElementById('alerta-status').innerHTML =
+                            '⚠️ Alerta';
+                    }
+
+                    else {
+
+                        document.getElementById('alerta-status').className =
+                            'status ok';
+
+                        document.getElementById('alerta-status').innerHTML =
+                            '✅ Normal';
+                    }
+                });
+        }
+
+        // =========================
+        // INICIALIZAÇÃO
+        // =========================
+
+        carregarLogs();
+
+        updateStatus();
+
+        setInterval(updateStatus, 2000);
+
+        setInterval(carregarLogs, 10000);
+
+    </script>   
+</body>
+</html>

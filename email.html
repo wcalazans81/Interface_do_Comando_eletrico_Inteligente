@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Configuração de Email - Sistema de Bombas</title>
+        <link rel="stylesheet" href="/style.css">
+        <style>
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            box-sizing: border-box; /* ⚠️ IMPORTANTE: evita overflow */
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .form-group.checkbox {
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-group.checkbox input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-test {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #4CAF50;
+            color: white;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f44336;
+            color: white;
+            display: block;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h4 {
+            margin: 0 0 10px 0;
+            color: #1976D2;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            color: #555;
+            word-break: break-word; /* ⚠️ Quebra palavras longas */
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap; /* ⚠️ Permite quebra em telas pequenas */
+            gap: 10px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #f5f5f5;
+        }
+        
+        /* ✅ MEDIA QUERIES PARA RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .email-container {
+                padding: 20px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-link {
+                text-align: center;
+                margin: 5px 0;
+            }
+            
+            .form-group.checkbox {
+                flex-wrap: wrap;
+            }
+            
+            .info-box p {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .email-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn-save, .btn-test {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <script src="/auth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Configuração de Email</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="email-container">
+            <div class="info-box">
+                <h4>📋 Configuração SMTP</h4>
+                <p><strong>Gmail:</strong> smtp.gmail.com | Porta: 465 (SSL) ou 587 (TLS)</p>
+                <p><strong>Outlook:</strong> smtp-mail.outlook.com | Porta: 587</p>
+                <p><strong>Para Gmail, use senha de APP (não a senha normal)</strong></p>
+            </div>
+
+            <form id="smtpForm">
+                <div class="form-group">
+                    <label>Servidor SMTP:</label>
+                    <input type="text" id="servidor" placeholder="smtp.gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Porta:</label>
+                    <input type="number" id="porta" value="465" min="1" max="65535">
+                </div>
+
+                <div class="form-group">
+                    <label>Usuário (email):</label>
+                    <input type="email" id="usuario" placeholder="seuemail@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Senha (app password):</label>
+                    <input type="password" id="senha" placeholder="senha de app">
+                </div>
+
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="usarSSL" checked>
+                    <label>Usar SSL (desmarque para TLS)</label>
+                </div>
+
+                <button type="submit" class="btn-save">💾 Salvar Configurações</button>
+            </form>
+
+            <button class="btn-test" onclick="testarEmail()">📧 Testar Envio</button>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <div class="nav-links">
+               <!-- <a href="/" class="nav-link">🏠 Dashboard</a> -->
+                <a href="/emails.html" class="nav-link">📧 Destinatários</a>
+                <a href="/config.html" class="nav-link">⚙️ Config</a>
+                <button onclick="sair()" style="background:#f44336; color:white; border:none; padding:8px 16px; border-radius:20px; margin-left:15px; cursor:pointer;">🏠 Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarStatus(msg, tipo) {
+            const el = document.getElementById('statusMessage');
+            el.className = 'status-message ' + tipo;
+            el.innerHTML = msg;
+            setTimeout(() => {
+                el.style.display = 'none';
+                setTimeout(() => {
+                    el.style.display = 'block';
+                }, 10);
+            }, 3000);
+        }
+
+        function carregarConfig() {
+            fetch('/api/email/config')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('servidor').value = data.servidor || 'smtp.gmail.com';
+                    document.getElementById('porta').value = data.porta || 465;
+                    document.getElementById('usuario').value = data.usuario || '';
+                    document.getElementById('senha').value = data.senha || '';
+                    document.getElementById('usarSSL').checked = data.usarSSL !== false;
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar config:', error);
+                });
+        }
+
+        document.getElementById('smtpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const config = {
+                servidor: document.getElementById('servidor').value,
+                porta: parseInt(document.getElementById('porta').value),
+                usuario: document.getElementById('usuario').value,
+                senha: document.getElementById('senha').value,
+                usarSSL: document.getElementById('usarSSL').checked
+            };
+            
+            fetch('/api/email/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarStatus('✅ Configurações salvas com sucesso!', 'success');
+                } else {
+                    mostrarStatus('❌ Erro ao salvar configurações', 'error');
+                }
+            })
+            .catch(error => {
+                mostrarStatus('❌ Erro ao conectar com servidor', 'error');
+            });
+        });
+
+        function testarEmail() {
+            mostrarStatus('📧 Enviando email de teste...', 'info');
+            
+            fetch('/api/email/test', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarStatus('✅ Email de teste enviado com sucesso!', 'success');
+                } else {
+                    mostrarStatus('❌ Falha ao enviar email: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                mostrarStatus('❌ Erro ao enviar comando', 'error');
+            });
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wifi-status').className = data.wifiConnected ? 'status online' : 'status offline';
+                    document.getElementById('wifi-status').innerHTML = data.wifiConnected ? '📶 WiFi' : '📶 Desconectado';
+                    document.getElementById('alerta-status').className = data.alertaAtivo ? 'status alerta' : 'status ok';
+                    document.getElementById('alerta-status').innerHTML = data.alertaAtivo ? '⚠️ Alerta' : '✅ Normal';
+                });
+        }
+
+        carregarConfig();
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>

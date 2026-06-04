@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Bombas Wa4</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚰 Sistema de Bombas Wa4</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>Bomba 1</h2>
+                <div class="pump-status" id="bomba1-status">⚪ DESLIGADA</div>
+                <button class="btn" onclick="toggleBomba(1)">Ligar/Desligar</button>
+            </div>
+
+            <div class="card">
+                <h2>Bomba 2</h2>
+                <div class="pump-status" id="bomba2-status">⚪ DESLIGADA</div>
+                <button class="btn" onclick="toggleBomba(2)">Ligar/Desligar</button>
+            </div>
+
+            <div class="card">
+                <h2>Nível</h2>
+                <div class="sensor-status">
+                    <p>Boia Alta: <span id="boia-alta">⬜ INATIVA</span></p>
+                    <p>Boia Baixa: <span id="boia-baixa">⬜ INATIVA</span></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Sistema</h2>
+                <p>Tipo: <span id="tipo-sistema">ÁGUA</span></p>
+                <p>Modo: <span id="modo">AUTO</span></p>
+                <p>Hora: <span id="hora">--:--</span></p>
+                <p>Data: <span id="data">--/--/----</span></p>
+            </div>
+        </div>
+
+        <div class="menu">
+            <a href="/" class="menu-item active">🏠 Dashboard</a>
+            <a href="/config.html" class="menu-item">⚙️ Config</a>
+            <a href="/emails.html" class="menu-item">📧 Destinatários</a>
+            <a href="/logs.html" class="menu-item">📋 Logs</a>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

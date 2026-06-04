@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administradores</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/auth.js"></script>
+    <style>
+        .admin-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #4CAF50;
+            color: white;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f44336;
+            color: white;
+            display: block;
+        }
+        
+        .status-message.info {
+            background: #2196F3;
+            color: white;
+            display: block;
+        }
+        
+        .admins-list {
+            margin: 30px 0;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .admins-list h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        .admin-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .admin-item .email {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .admin-item .badge {
+            background: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .counter {
+            text-align: right;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #f5f5f5;
+        }
+        
+        .nav-link:hover {
+            background: #e0e0e0;
+        }
+        
+        .primeiro-acesso {
+            background: #ff9800;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container input {
+            width: 100%;
+            padding-right: 45px; /* Espaço para o ícone */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #666;
+            transition: all 0.3s ease;
+            user-select: none;
+            z-index: 10;
+            background: transparent;
+            border: none;
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: #667eea;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .toggle-password:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 Administradores</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="admin-container">
+            <div id="primeiroAcessoMsg" class="primeiro-acesso" style="display:none;">
+                ⚠️ PRIMEIRO ACESSO: Cadastre seu email e senha para continuar!
+            </div>
+
+            <div class="info-box">
+                <h4>📧 Administradores do Sistema</h4>
+                <p>Máximo de <strong>3 administradores</strong>. Cada um terá seu próprio email e senha para acessar o sistema.</p>
+                <p>O email será usado tanto para login quanto para recuperação de senha.</p>
+            </div>
+
+            <div class="admins-list">
+                <h3>📋 Administradores Cadastrados</h3>
+                <div id="counter" class="counter">0/3</div>
+                <div id="adminsContainer"></div>
+            </div>
+
+            <div class="warning-box" id="formContainer">
+                <h3>➕ Adicionar Novo Administrador</h3>
+                
+                <form id="adminForm" onsubmit="salvarAdmin(event)">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="adminEmail" placeholder="sindico@condominio.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <div class="password-container">
+                            <input type="password" id="adminSenha" placeholder="mínimo 6 caracteres" minlength="6" required>
+                            <span class="toggle-password" onclick="toggleSenha('adminSenha', this)">👁️</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirmar Senha:</label>
+                        <div class="password-container">
+                            <input type="password" id="confirmSenha" placeholder="digite novamente" minlength="6" required>
+                            <span class="toggle-password" onclick="toggleSenha('confirmSenha', this)">👁️</span>
+                        </div>
+                    </div>>
+                    
+                    <button type="submit" class="btn-save" id="btnSalvar">💾 Cadastrar</button>
+                </form>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Dashboard</a>
+                <a href="/config.html" class="nav-link">⚙️ Configurações</a>
+                <a href="/emails.html" class="nav-link">📧 Alertas</a>
+                <a href="/email.html" class="nav-link">📨 SMTP</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let maxAdmins = 3;
+        let adminCount = 0;
+        let primeiroAcesso = false;
+
+        function mostrarStatus(msg, tipo) {
+            const el = document.getElementById('statusMessage');
+            el.className = 'status-message ' + tipo;
+            el.innerHTML = msg;
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 3000);
+        }
+
+        function carregarAdmins() {
+            fetch('/api/admin/listar')
+                .then(response => response.json())
+                .then(data => {
+                    adminCount = data.count || 0;
+                    maxAdmins = data.max || 3;
+                    primeiroAcesso = data.primeiroAcesso || false;
+                    
+                    document.getElementById('counter').innerHTML = `${adminCount}/${maxAdmins}`;
+                    
+                    // Mostra mensagem de primeiro acesso
+                    if (primeiroAcesso) {
+                        document.getElementById('primeiroAcessoMsg').style.display = 'block';
+                    } else {
+                        document.getElementById('primeiroAcessoMsg').style.display = 'none';
+                    }
+                    
+                    // Desabilita formulário se já atingiu máximo
+                    const btn = document.getElementById('btnSalvar');
+                    if (adminCount >= maxAdmins) {
+                        btn.disabled = true;
+                        btn.innerHTML = '❌ Limite atingido';
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = '💾 Cadastrar';
+                    }
+                    
+                    // Lista os admins
+                    const container = document.getElementById('adminsContainer');
+                    if (data.admins && data.admins.length > 0) {
+                        let html = '';
+                        data.admins.forEach(admin => {
+                            html += `
+                                <div class="admin-item">
+                                    <span class="email">${admin.email}</span>
+                                    <span class="badge">Admin</span>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p style="color:#999;">Nenhum administrador cadastrado</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+        }
+
+        function salvarAdmin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('adminEmail').value.trim();
+            const senha = document.getElementById('adminSenha').value;
+            const confirm = document.getElementById('confirmSenha').value;
+            
+            if (senha !== confirm) {
+                mostrarStatus('❌ As senhas não conferem!', 'error');
+                return;
+            }
+            
+            if (senha.length < 6) {
+                mostrarStatus('❌ A senha deve ter no mínimo 6 caracteres!', 'error');
+                return;
+            }
+            
+            if (!email.includes('@') || !email.includes('.')) {
+                mostrarStatus('❌ Email inválido!', 'error');
+                return;
+            }
+            
+            mostrarStatus('📤 Cadastrando...', 'info');
+            
+            fetch('/api/admin/adicionar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarStatus('✅ Administrador cadastrado com sucesso!', 'success');
+                    document.getElementById('adminEmail').value = '';
+                    document.getElementById('adminSenha').value = '';
+                    document.getElementById('confirmSenha').value = '';
+                    carregarAdmins();
+                    
+                    // Se era primeiro acesso, redireciona para config após cadastrar
+                    if (primeiroAcesso) {
+                        setTimeout(() => {
+                            window.location.href = '/config.html';
+                        }, 2000);
+                    }
+                } else {
+                    mostrarStatus('❌ ' + (data.erro || 'Erro ao cadastrar'), 'error');
+                }
+            })
+            .catch(error => {
+                mostrarStatus('❌ Erro de conexão', 'error');
+            });
+        }
+
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wifi-status').className = data.wifiConnected ? 'status online' : 'status offline';
+                    document.getElementById('wifi-status').innerHTML = data.wifiConnected ? '📶 WiFi' : '📶 Desconectado';
+                    document.getElementById('alerta-status').className = data.alertaAtivo ? 'status alerta' : 'status ok';
+                    document.getElementById('alerta-status').innerHTML = data.alertaAtivo ? '⚠️ Alerta' : '✅ Normal';
+                });
+        }
+
+        carregarAdmins();
+        // Função para mostrar/esconder senha
+        function toggleSenha(inputId, elemento) {
+            const senhaInput = document.getElementById(inputId);
+            
+            if (senhaInput.type === 'password') {
+                senhaInput.type = 'text';
+                elemento.textContent = '👁️‍🗨️'; // Olho aberto
+            } else {
+                senhaInput.type = 'password';
+                elemento.textContent = '👁️'; // Olho fechado
+            }
+        }
+        setInterval(updateStatus, 2000);
+        setInterval(carregarAdmins, 5000);
+    </script>
+</body>
+</html>

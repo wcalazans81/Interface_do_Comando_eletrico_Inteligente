@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração - Sistema de Bombas</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .config-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .config-group {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .config-group h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .config-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .config-item label {
+            font-weight: 600;
+            color: #666;
+            flex: 1;
+        }
+        
+        .config-item select, .config-item input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 150px;
+        }
+        
+        .config-item input[type="number"] {
+            width: 80px;
+        }
+        
+        .config-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #4CAF50;
+            color: white;
+            display: block;
+        }
+        
+        .status-message.error {
+            background: #f44336;
+            color: white;
+            display: block;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #f5f5f5;
+        }
+    </style>
+    <script src="/auth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Configuração do Sistema</h1>
+            <div class="status-bar">
+                <span id="wifi-status" class="status online">📶 WiFi</span>
+                <span id="alerta-status" class="status ok">✅ Normal</span>
+            </div>
+        </header>
+
+        <div class="config-container">
+            <div class="config-group">
+                <h3>🔧 Configurações Gerais</h3>
+                
+                <div class="config-item">
+                    <label>Modo de Operação:</label>
+                    <select id="modo">
+                        <option value="0">Manual</option>
+                        <option value="1">Automático</option>
+                    </select>
+                </div>
+
+                <div class="config-item">
+                    <label>Número de Bombas:</label>
+                    <select id="numBombas">
+                        <option value="1">1 Bomba</option>
+                        <option value="2">2 Bombas</option>
+                    </select>
+                </div>
+
+                <div class="config-item">
+                    <label>Número de Boias:</label>
+                    <select id="numBoias">
+                        <option value="1">1 Boia</option>
+                        <option value="2">2 Boias</option>
+                    </select>
+                </div>
+
+                <div class="config-item">
+                    <label>Tipo de Sistema:</label>
+                    <select id="tipoSistema">
+                        <option value="0">Água Potável</option>
+                        <option value="1">Esgoto</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <h3>⏱️ Timer Anti-Transbordo</h3>
+                
+                <div class="config-item">
+                    <label>Ativar Timer:</label>
+                    <input type="checkbox" id="timerAtivo">
+                </div>
+
+                <div class="config-item">
+                    <label>Tempo (minutos):</label>
+                    <select id="timerMin">
+                        <option value="20">20 min</option>
+                        <option value="40">40 min</option>
+                        <option value="60">60 min</option>
+                        <option value="80">80 min</option>
+                        <option value="100">100 min</option>
+                        <option value="120">120 min</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <h3>🔄 Alternância</h3>
+                
+                <div class="config-item">
+                    <label>Alternância Automática:</label>
+                    <input type="checkbox" id="alternancia">
+                </div>
+
+                <div class="config-item">
+                    <label>Bomba Padrão:</label>
+                    <select id="bombaPadrao">
+                        <option value="1">Bomba 1</option>
+                        <option value="2">Bomba 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-save" onclick="salvarConfig()">💾 Salvar Configurações</button>
+            
+            <div id="statusMessage" class="status-message"></div>
+
+            <div class="nav-links">
+                <!--<a href="/" class="nav-link">🏠 Dashboard</a> -->
+                <a href="/admin_email.html" class="nav-link">👥 Administrador</a>
+                <a href="/emails.html" class="menu-item">📧 Destinatários</a>
+                <button onclick="sair()" style="background:#f44336; color:white; 
+                border:none; padding:8px 16px; border-radius:20px; margin-left:15px; cursor:pointer;">🏠 Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carrega configurações atuais
+        function carregarConfig() {
+            fetch('/api/config')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modo').value = data.modo || 1;
+                    document.getElementById('numBombas').value = data.numBombas || 2;
+                    document.getElementById('numBoias').value = data.numBoias || 2;
+                    document.getElementById('tipoSistema').value = data.tipoSistema || 0;
+                    document.getElementById('timerAtivo').checked = data.timerBoiaAtivo || false;
+                    document.getElementById('timerMin').value = data.timerBoiaMin || 40;
+                    document.getElementById('alternancia').checked = data.alternancia || false;
+                    document.getElementById('bombaPadrao').value = data.bombaPadrao || 1;
+                })
+                .catch(error => {
+                    mostrarStatus('Erro ao carregar configurações', 'error');
+                });
+        }
+
+        // Salva configurações
+        function salvarConfig() {
+            const config = {
+                modo: parseInt(document.getElementById('modo').value),
+                numBombas: parseInt(document.getElementById('numBombas').value),
+                numBoias: parseInt(document.getElementById('numBoias').value),
+                tipoSistema: parseInt(document.getElementById('tipoSistema').value),
+                timerBoiaAtivo: document.getElementById('timerAtivo').checked,
+                timerBoiaMin: parseInt(document.getElementById('timerMin').value),
+                alternancia: document.getElementById('alternancia').checked,
+                bombaPadrao: parseInt(document.getElementById('bombaPadrao').value)
+            };
+
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    mostrarStatus('✅ Configurações salvas com sucesso!', 'success');
+                } else {
+                    mostrarStatus('❌ Erro ao salvar configurações', 'error');
+                }
+            })
+            .catch(error => {
+                mostrarStatus('❌ Erro ao salvar configurações', 'error');
+            });
+        }
+
+        function mostrarStatus(msg, tipo) {
+            const el = document.getElementById('statusMessage');
+            el.className = 'status-message ' + tipo;
+            el.innerHTML = msg;
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 3000);
+        }
+
+        // Atualiza status da conexão
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wifi-status').className = data.wifiConnected ? 'status online' : 'status offline';
+                    document.getElementById('wifi-status').innerHTML = data.wifiConnected ? '📶 WiFi' : '📶 Desconectado';
+                    document.getElementById('alerta-status').className = data.alertaAtivo ? 'status alerta' : 'status ok';
+                    document.getElementById('alerta-status').innerHTML = data.alertaAtivo ? '⚠️ Alerta' : '✅ Normal';
+                });
+        }
+
+        // Inicializa
+        carregarConfig();
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>
